@@ -1,0 +1,31 @@
+version: '2'
+services:
+  db:
+    build: bd
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+  php56:
+    build:
+      context: php56-fpm
+      args:
+        TIMEZONE: ${TIMEZONE}
+    volumes:
+    - ${DIRECTORY_WEB}:/var/www/html
+  web:
+    image: apache
+    build: apache
+    container_name: apache_web
+    depends_on:
+      - php56
+    environment:
+      APACHE_LOG_LEVEL: debug
+      APACHE_BACKEND_HOST: php56
+      APACHE_SERVER_ROOT: /var/www/html/
+    restart: always
+    volumes:
+      - ${DIRECTORY_WEB}:/var/www/html
+    ports:
+    - "8085:80"
